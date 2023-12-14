@@ -216,17 +216,13 @@ def generate_text(sentence, maxlen=MAX_TOKENS):
     output_array = tokenizer.tokenize(sentence).merge_dims(-2, -1).to_tensor()
     query_size = output_array.shape[1]
     
-    sentence_count = 0
     for i in range(maxlen):
         prediction = transformer(output_array, training=False)
         prediction = prediction[:, -1:, :]
         prediction = tf.argmax(prediction, axis=-1)
         output_array = tf.concat([output_array, prediction], axis=1)
         
-        if prediction[0][0].numpy() == 17:
-            sentence_count += 1
-        
-        if prediction[0][0].numpy() == 3 or sentence_count >= 3:
+        if prediction[0][0].numpy() == 3:
             break
         
     output = output_array[:, query_size:]
